@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block main %}
+    <h1>Welcome to C$50 Finance!</h1>
+    <p>
+        {% if session["user_id"] %}
+            Welcome back, {{ session["user_id"] }}!
+        {% else %}
+            Welcome! <a href="/login">Log in</a> or <a href="/register">register</a> to get started.
+        {% endif %}
+    </p>
+{% endblock %}

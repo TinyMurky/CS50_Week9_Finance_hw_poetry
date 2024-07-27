@@ -9,4 +9,7 @@ def register_error_handlers(app: Flask):
     """
 
     for _, exception in error_exception_mapper.items():
-        app.register_error_handler(exception, error_handler.handle_exception_by_cat)
+        # use code to register
+        app.register_error_handler(
+            exception.code, error_handler.handle_exception_by_cat
+        )

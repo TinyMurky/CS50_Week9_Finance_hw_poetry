@@ -12,6 +12,7 @@ def handle_exception_by_cat(error: HTTPException):
 
     code = error.code or 500
     message = error.description
+    print(f"Handling error: {error}")  # 添加调试输出
 
     def escape(s):
         """

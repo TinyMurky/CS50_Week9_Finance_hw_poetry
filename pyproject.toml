@@ -11,11 +11,14 @@ packages = [
 
 [tool.poetry.scripts]
 db_migrate = "sql.sqlite:SQL.migrate"
+start = "app.main:start_prod"
+dev = "app.main:start_dev"
 
 [tool.poetry.dependencies]
 python = "^3.11"
 flask = "^3.0.3"
 flask-session = "^0.8.0"
+waitress = "^3.0.0"
 
 
 [build-system]

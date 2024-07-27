@@ -52,6 +52,10 @@ InvalidUserNameOrPassword = create_custom_http_exception(
     "InvalidUserNameOrPassword", 403, "Bad Username or password", exceptions.Forbidden
 )
 
+InvalidDevInputArgument = create_custom_http_exception(
+    "InvalidDevInputArgument", 500, "Dev use bad input", exceptions.InternalServerError
+)
+
 error_exception_mapper = {
     "DatabaseReadFailException": DatabaseReadFailException,
     "DatabaseCreateFailException": DatabaseCreateFailException,
@@ -61,4 +65,5 @@ error_exception_mapper = {
     "NotProvideUserName": NotProvideUserName,
     "NotProvidePassword": NotProvidePassword,
     "InvalidUserNameOrPassword": InvalidUserInputException,
+    "InvalidDevInputArgument": InvalidDevInputArgument,
 }

@@ -1,7 +1,8 @@
 import sqlite3
-from typing import Any
+from typing import Any, Union
 
-from src.libs.common import get_abs_path
+from src.libs.common import get_abs_path, hash_password
+from src.libs.errors.error_classes import InvalidDevInputArgument
 
 
 class SQL:
@@ -47,18 +48,48 @@ class SQL:
         SQL._cursor.executescript(sql_query)
         SQL._connect.commit()
 
-    def findUniqueUser(self, username: str) -> dict[str, Any]:
+    def find_unique_user(self, identifier: Union[str, int]) -> dict[str, Any]:
         """
         get unique user from users table
         """
         assert self._cursor is not None
-        assert isinstance(username, str)
-        query = """
-        SELECT * FROM users
-        WHERE username = ?
-        LIMIT 1;
-        """
+        if isinstance(identifier, str):
+            query = """
+            SELECT * FROM users
+            WHERE username = ?
+            LIMIT 1;
+            """
+        elif isinstance(identifier, int):
+            query = """
+            SELECT * FROM users
+            WHERE id = ?
+            LIMIT 1;
+            """
+        else:
+            raise InvalidDevInputArgument
 
-        self._cursor.execute(query, (username,))
+        self._cursor.execute(query, (identifier,))
         user = self._cursor.fetchone()
         return user
+
+    def create_user(self, username: str, password: str):
+        """
+        create user
+        """
+        assert self._connect is not None
+        assert self._cursor is not None
+
+        if not isinstance(username, str) or not isinstance(password, str):
+            raise InvalidDevInputArgument
+
+        hashed_password = hash_password(password=password)
+        query = """
+        INSERT INTO users (username, hash)
+        VALUES
+        (?, ?)
+        """
+
+        self._cursor.execute(query, (username, hashed_password))
+        self._connect.commit()
+
+        return self._cursor.lastrowid
