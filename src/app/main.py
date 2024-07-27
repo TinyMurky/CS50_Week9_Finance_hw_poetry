@@ -19,4 +19,5 @@ def start_prod():
     """
     start prod mode
     """
+    print(f"Production Server start on PORT: {PORT}")
     serve(app, port=PORT, host="0.0.0.0")

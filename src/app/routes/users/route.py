@@ -9,10 +9,8 @@ from src.libs.errors.error_classes import (
     NotProvidePassword,
     NotProvideUserName,
 )
-from src.sql.sqlite import SQL
+from src.sql.sqlite import sql_client
 from src.libs.common import check_password
-
-sql_imp = SQL()
 
 
 @users.route("/login", methods=["GET", "POST"])
@@ -34,7 +32,7 @@ def login():
         if not password:
             raise NotProvidePassword
 
-        user = sql_imp.find_unique_user(username)
+        user = sql_client.find_unique_user(username)
 
         if not user or not check_password(
             hashed_password=user["hash"], password=password
@@ -81,7 +79,7 @@ def register():
         if password != confirm_password:
             raise InvalidUserNameOrPassword
 
-        sql_imp.create_user(username=username, password=password)
+        sql_client.create_user(username=username, password=password)
         return redirect("/users/login")
 
     else:

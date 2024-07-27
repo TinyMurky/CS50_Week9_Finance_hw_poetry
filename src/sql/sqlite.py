@@ -93,3 +93,6 @@ class SQL:
         self._connect.commit()
 
         return self._cursor.lastrowid
+
+
+sql_client = SQL()

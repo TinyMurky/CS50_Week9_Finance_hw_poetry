@@ -1,7 +1,6 @@
 from functools import wraps
 from flask import session, redirect
-from src.sql.sqlite import SQL
-from src.libs.errors.error_classes import InvalidUserInputException
+from src.sql.sqlite import sql_client
 
 
 def login_required(f):
@@ -26,8 +25,7 @@ def login_required(f):
         # except ValueError as exc:
         #     raise InvalidUserInputException from exc
 
-        sql_imp = SQL()
-        user = sql_imp.find_unique_user(user_id)
+        user = sql_client.find_unique_user(user_id)
 
         print("user", user)
         print("user_id", user_id, type(user_id))
