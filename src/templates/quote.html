@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Quote
+{% endblock %}
+
+{% block main %}
+    <h1>Get Your Stock Quote!</h1>
+    <form action="/quote" method="post">
+        <div>
+            <input autocomplete="off" autofocus name="symbol" placeholder="Symbol" type="text">
+            <button class="btn btn-primary" type="submit">🔎</button>
+        </div>
+    </form>
+    <br>
+
+    <div class="container">
+        <table class="table">
+            <thead>
+                <tr>
+                <th scope="col">#</th>
+                <th scope="col">Symbol</th>
+                <th scope="col">Price</th>
+                <th scope="col">Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for quote in quotes %}
+                <tr>
+                <th scope="row">{{ loop.index }}</th>
+                <td>{{ quote.symbol }}</td>
+                <td>{{ quote.price }}</td>
+                <td>{{ quote.time_str }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+    <div class="container d-flex justify-content-center">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                <li class="page-item {% if previous_disable %} disabled {% endif %}">
+                    <a class="page-link" href="/quote?page={{ current_page - 1 }}" aria-label="Previous" >
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% for i in range(1, total_pages + 1) %}
+                <li class="page-item {% if i == current_page %} active {% endif %}"><a class="page-link" href="/quote?page={{ i }}">{{ i }}</a></li>
+                {% endfor %}
+                <li class="page-item {% if next_disable %} disabled {% endif %}">
+                    <a class="page-link" href="/quote?page={{ current_page + 1 }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+{% endblock %}

@@ -1,6 +1,7 @@
 import os
 import datetime
 import requests
+import urllib.parse
 import uuid
 import pytz
 import csv
@@ -43,7 +44,7 @@ def check_password(hashed_password: str, password: str):
     return check_password_hash(pwhash=hashed_password, password=password)
 
 
-def lookup(symbol):
+def lookup(symbol: str):
     """Look up quote for symbol."""
 
     # Prepare API request
@@ -65,6 +66,7 @@ def lookup(symbol):
             url,
             cookies={"session": str(uuid.uuid4())},
             headers={"Accept": "*/*", "User-Agent": request.headers.get("User-Agent")},
+            timeout=5,
         )
         response.raise_for_status()
 
@@ -74,3 +76,48 @@ def lookup(symbol):
         return {"price": price, "symbol": symbol}
     except (KeyError, IndexError, requests.RequestException, ValueError):
         return None
+
+
+def get_offset(page: int = 1, limit: int = 10):
+    """
+    Calculate offset by page and limit
+    """
+    return (page - 1) * limit
+
+
+def get_total_page(total_amount: int, limit: int):
+    """
+    Get total pages from limit
+    """
+    return total_amount // limit + 1
+
+
+def get_timestamp_now():
+    """
+    Get timestamp now
+    """
+    curr_dt = datetime.datetime.now()
+    timestamp = curr_dt.timestamp()
+    return timestamp
+
+
+def format_datetime(date: datetime.datetime) -> str:
+    """
+    format time to YYYY-MM-DD hh:mm:ss ms
+    """
+    date_str = (
+        f"{date.year}-{date.month}-{date.day} {date.hour}:{date.minute}:{date.second}"
+    )
+    return date_str
+
+
+def get_local_time(timestamp: float):
+    """
+    get local time
+    """
+    timezone = pytz.timezone("Asia/Taipei")
+
+    d_time = datetime.datetime.fromtimestamp(timestamp)
+    dt_zone = timezone.localize(d_time)
+
+    return dt_zone

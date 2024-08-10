@@ -1,5 +1,6 @@
 PRAGMA foreign_keys = OFF;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS quotes;
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE users (
@@ -10,3 +11,12 @@ CREATE TABLE users (
 );
 
 CREATE UNIQUE INDEX username ON users (username);
+
+CREATE TABLE quotes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    symbol TEXT NOT NULL,
+    price REAL NOT NULL,
+    timestamp REAL NOT NULL,
+    user_id INTEGER NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+)

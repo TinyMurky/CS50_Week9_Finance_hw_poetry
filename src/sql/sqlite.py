@@ -1,7 +1,7 @@
 import sqlite3
 from typing import Any, Union
 
-from src.libs.common import get_abs_path, hash_password
+from src.libs.common import get_abs_path, hash_password, get_offset, get_timestamp_now
 from src.libs.errors.error_classes import InvalidDevInputArgument
 
 
@@ -48,6 +48,25 @@ class SQL:
         SQL._cursor.executescript(sql_query)
         SQL._connect.commit()
 
+    def get_total_row_amount(self, table_name: str) -> int:
+        """
+        get amount of row from table
+        """
+        assert self._cursor is not None, "Cursor is None"
+
+        query = f"SELECT COUNT(*) as `count` FROM {table_name}"
+
+        rows_amount = 0
+
+        try:
+            self._cursor.execute(query)
+            rows_amount = self._cursor.fetchone()["count"]
+        except sqlite3.OperationalError as e:
+            print(f"Error: {e}. Table '{table_name}' may not exist.")
+            rows_amount = 0  # 如果表格不存在，可以返回 0 或其他適當的值
+
+        return rows_amount
+
     def find_unique_user(self, identifier: Union[str, int]) -> dict[str, Any]:
         """
         get unique user from users table
@@ -90,6 +109,43 @@ class SQL:
         """
 
         self._cursor.execute(query, (username, hashed_password))
+        self._connect.commit()
+
+        return self._cursor.lastrowid
+
+    # Below is Quote
+    def find_many_quote(self, page: int, limit: int, user_id: int):
+        """
+        find many quote
+        """
+        assert self._cursor is not None, "Cursor is None"
+        offset = get_offset(page=page, limit=limit)
+
+        query = """
+        SELECT * FROM quotes
+        WHERE user_id = ?
+        ORDER BY timestamp DESC
+        LIMIT ? OFFSET ?
+        """
+
+        self._cursor.execute(query, (user_id, limit, offset))
+
+        rows = self._cursor.fetchall()
+        return rows
+
+    def create_quote(self, symbol: str, price: float, user_id: int):
+
+        assert self._connect is not None, "Connect is None"
+        assert self._cursor is not None, "Cursor is None"
+        now = get_timestamp_now()
+
+        query = """
+        INSERT INTO quotes (symbol, price, user_id, timestamp)
+        VALUES
+        (?, ?, ?, ?)
+        """
+
+        self._cursor.execute(query, (symbol, price, user_id, now))
         self._connect.commit()
 
         return self._cursor.lastrowid
