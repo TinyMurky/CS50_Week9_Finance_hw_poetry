@@ -56,6 +56,21 @@ InvalidDevInputArgument = create_custom_http_exception(
     "InvalidDevInputArgument", 500, "Dev use bad input", exceptions.InternalServerError
 )
 
+NoSuchUser = create_custom_http_exception(
+    "NoSuchUser", 404, "This user isn't existed", exceptions.NotFound
+)
+
+NotEnoughMoney = create_custom_http_exception(
+    "NotEnoughMoney", 402, "Sorry, you don't have enough money", exceptions.BadRequest
+)
+
+NotEnoughShare = create_custom_http_exception(
+    "NotEnoughShare",
+    402,
+    "Sorry, you don't have enough share to sell",
+    exceptions.BadRequest,
+)
+
 error_exception_mapper = {
     "DatabaseReadFailException": DatabaseReadFailException,
     "DatabaseCreateFailException": DatabaseCreateFailException,

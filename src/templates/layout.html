@@ -36,9 +36,13 @@
                             <li class="nav-item"><a class="nav-link" href="/sell">Sell</a></li>
                             <li class="nav-item"><a class="nav-link" href="/history">History</a></li>
                         </ul>
+                        <ul class="navbar-nav me-auto mt-2">
+                            <li class="nav-item">Remain Cash: $<span class="remain-cash"></span></li>
+                        </ul>
                         <ul class="navbar-nav ms-auto mt-2">
                             <li class="nav-item"><a class="nav-link" href="/users/logout">Log Out</a></li>
                         </ul>
+
                     {% else %}
                         <ul class="navbar-nav ms-auto mt-2">
                             <li class="nav-item"><a class="nav-link" href="/users/register">Register</a></li>
@@ -86,6 +90,18 @@
             </script>
         </footer>
 
+        <script async>
+            const remainCashSpan = document.querySelector(".remain-cash");
+
+            const updateRemainCash = async () => {
+                const response = await fetch("/users/cash");
+                const data = await response.json();
+                const remainCash = Math.round(data.cash * 100) / 100;
+                remainCashSpan.textContent = remainCash;
+            };
+
+            updateRemainCash();
+        </script>
     </body>
 
 </html>

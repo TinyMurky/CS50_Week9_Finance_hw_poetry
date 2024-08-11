@@ -2,7 +2,7 @@
 User login and register
 """
 
-from flask import request, render_template, session, redirect
+from flask import request, render_template, session, redirect, jsonify
 from src.app.routes.users import users
 from src.libs.errors.error_classes import (
     InvalidUserNameOrPassword,
@@ -84,3 +84,22 @@ def register():
 
     else:
         return render_template("register.html")
+
+
+@users.route("/cash", methods=["GET"])
+def get_user_cash():
+    user_id = session["user_id"]
+
+    result = {"cash": 0}
+
+    if not user_id:
+        return jsonify(result)
+
+    user = sql_client.find_unique_user(user_id)
+
+    if not user:
+        return jsonify(result)
+
+    result["cash"] = user["cash"]
+
+    return jsonify(result)

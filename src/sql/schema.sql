@@ -19,4 +19,17 @@ CREATE TABLE quotes (
     timestamp REAL NOT NULL,
     user_id INTEGER NOT NULL,
     FOREIGN KEY(user_id) REFERENCES users(id)
-)
+);
+
+CREATE TABLE transactions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    symbol TEXT NOT NULL,
+    share INTEGER NOT NULL CHECK(share <> 0), -- shares > 0 for buy, shares < 0 for sell
+    price REAL NOT NULL, -- price for each share
+    timestamp REAL NOT NULL,
+    user_id INTEGER NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
+CREATE INDEX idx_user_id ON transactions(user_id);
+CREATE INDEX idx_symbol ON transactions(symbol);

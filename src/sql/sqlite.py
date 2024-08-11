@@ -2,7 +2,12 @@ import sqlite3
 from typing import Any, Union
 
 from src.libs.common import get_abs_path, hash_password, get_offset, get_timestamp_now
-from src.libs.errors.error_classes import InvalidDevInputArgument
+from src.libs.errors.error_classes import (
+    InvalidDevInputArgument,
+    NoSuchUser,
+    NotEnoughMoney,
+    NotEnoughShare,
+)
 
 
 class SQL:
@@ -134,6 +139,9 @@ class SQL:
         return rows
 
     def create_quote(self, symbol: str, price: float, user_id: int):
+        """
+        Save quote history from yahoo
+        """
 
         assert self._connect is not None, "Connect is None"
         assert self._cursor is not None, "Cursor is None"
@@ -149,6 +157,111 @@ class SQL:
         self._connect.commit()
 
         return self._cursor.lastrowid
+
+    def get_user_single_stock_shares(self, user_id: int, symbol) -> int:
+        """
+        GET how many stock an user have
+        """
+        assert self._connect is not None, "Connect is None"
+        assert self._cursor is not None, "Cursor is None"
+
+        query = """
+        SELECT SUM(share) as total_shares
+        WHERE user_id = ?, symbol = ?;
+        """
+
+        self._cursor.execute(query, (user_id, symbol))
+        result = self._cursor.fetchone()
+        total_shares = (
+            result["total_shares"] if (result and result["total_shares"]) else 0
+        )
+
+        return total_shares
+
+    # Buy and sell logic
+    def buy(self, user_id: int, symbol: str, price: float, share: int):
+        """
+        Buy Stock by transaction
+
+        :param: price is 1 stock price
+        """
+        assert self._connect is not None, "Connect is None"
+        assert self._cursor is not None, "Cursor is None"
+
+        user = self.find_unique_user(user_id)
+
+        if not user:
+            raise NoSuchUser
+
+        total_price = price * share
+
+        if user["cash"] < total_price:
+            raise NotEnoughMoney
+
+        update_cash_query = """
+        UPDATE user
+        SET cash = cash - (? * ?)
+        WHERE user_id = ?;
+        """
+
+        insert_buy_transaction_query = """
+        INSERT INTO transactions (symbol, share, price, timestamp, user_id)
+        VALUES
+        (?, ?, ?, ?, ?);
+        """
+
+        try:
+            # start transaction
+            self._connect.execute("BEGIN TRANSACTION")
+            now = get_timestamp_now()
+            self._cursor.execute(update_cash_query, (price, share, user_id))
+            self._cursor.execute(
+                insert_buy_transaction_query, (symbol, share, price, now, user_id)
+            )
+            self._connect.commit()
+        except sqlite3.Error as e:
+            # 如果发生错误，回滚事务
+            print(f"An error occurred in buy: {e}")
+            self._connect.rollback()
+
+        return self._cursor.lastrowid
+
+    def sell(self, user_id: int, symbol: str, price: float, share: int):
+        """
+        Sell stock if have enough share
+        """
+        assert self._connect is not None, "Connect is None"
+        assert self._cursor is not None, "Cursor is None"
+
+        user_stock = self.get_user_single_stock_shares(user_id=user_id, symbol=symbol)
+
+        if user_stock < share:
+            raise NotEnoughShare
+
+        update_cash_query = """
+        UPDATE user
+        SET cash = cash + (? * ?)
+        WHERE user_id = ?;
+        """
+
+        insert_buy_transaction_query = """
+        INSERT INTO transactions (symbol, share, price, timestamp, user_id)
+        VALUES
+        (?, ?, ?, ?, ?);
+        """
+        try:
+            # start transaction
+            self._connect.execute("BEGIN TRANSACTION")
+            now = get_timestamp_now()
+            self._cursor.execute(update_cash_query, (price, share, user_id))
+            self._cursor.execute(
+                insert_buy_transaction_query, (symbol, share, price, now, user_id)
+            )
+            self._connect.commit()
+        except sqlite3.Error as e:
+            # 如果发生错误，回滚事务
+            print(f"An error occurred in buy: {e}")
+            self._connect.rollback()
 
 
 sql_client = SQL()
