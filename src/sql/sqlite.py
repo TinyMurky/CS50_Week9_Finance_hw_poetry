@@ -184,11 +184,13 @@ class SQL:
         Buy Stock by transaction
 
         :param: price is 1 stock price
+        :param: share need to be negative
         """
         assert self._connect is not None, "Connect is None"
         assert self._cursor is not None, "Cursor is None"
 
         user = self.find_unique_user(user_id)
+        share = -1 * abs(share)
 
         if not user:
             raise NoSuchUser
@@ -262,6 +264,58 @@ class SQL:
             # 如果发生错误，回滚事务
             print(f"An error occurred in buy: {e}")
             self._connect.rollback()
+
+    def get_portfolio(self, user_id: int):
+        """
+        Return be like
+
+        1. symbol
+        2. total_price
+        3. avg_price
+        4. total_share
+
+        You need to get total cash and total price + total cash
+        """
+        assert self._cursor is not None, "Cursor is None"
+
+        query = """
+        SELECT
+            symbol,
+            sum(price * share) as total_price,
+            ROUND(sum(price * share) / sum(share), 2) as avg_price,
+            sum(share) as total_share
+        FROM transactions
+        WHERE user_id = ?
+        GROUP BY symbol
+        ORDER BY total_share DESC
+        """
+
+        self._cursor.execute(query, (user_id,))
+
+        portfolio = self._cursor.fetchall()
+
+        return portfolio
+
+    def get_history(self, user_id: int, page: int, limit: int):
+        """
+        get history of transaction
+        """
+        assert self._cursor is not None, "Cursor is None"
+
+        offset = get_offset(page=page, limit=limit)
+
+        query = """
+        SELECT id, symbol, share, price, timestamp
+        WHERE user_id = ?
+        ORDER BY timestamp DESC
+        LIMIT ? OFFSET ?;
+        """
+
+        self._cursor.execute(query, (user_id, limit, offset))
+
+        history = self._cursor.fetchall()
+
+        return history
 
 
 sql_client = SQL()
