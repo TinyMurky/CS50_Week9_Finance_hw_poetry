@@ -61,12 +61,12 @@ NoSuchUser = create_custom_http_exception(
 )
 
 NotEnoughMoney = create_custom_http_exception(
-    "NotEnoughMoney", 402, "Sorry, you don't have enough money", exceptions.BadRequest
+    "NotEnoughMoney", 400, "Sorry, you don't have enough money", exceptions.BadRequest
 )
 
 NotEnoughShare = create_custom_http_exception(
     "NotEnoughShare",
-    402,
+    400,
     "Sorry, you don't have enough share to sell",
     exceptions.BadRequest,
 )

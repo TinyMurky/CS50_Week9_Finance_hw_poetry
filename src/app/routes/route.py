@@ -6,6 +6,7 @@ from flask import render_template, session, redirect
 from src.app.routes import root
 from src.libs.decorator import login_required
 from src.sql.sqlite import sql_client
+from src.libs.common import number_to_money
 
 
 @root.route("/")
@@ -29,6 +30,15 @@ def home_page():
 
     total_asset = total_cash + total_amount_of_portfolio
 
+    for portfolio in portfolios:
+        total_price = portfolio["total_price"]
+        portfolio["total_price"] = number_to_money(total_price)
+
+        avg_price = portfolio["avg_price"]
+        portfolio["avg_price"] = number_to_money(avg_price)
+
+    total_cash = number_to_money(total_cash)
+    total_asset = number_to_money(total_asset)
     return render_template(
         "home.html",
         total_cash=total_cash,

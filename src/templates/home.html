@@ -6,11 +6,37 @@
 
 {% block main %}
     <h1>Welcome to C$50 Finance!</h1>
-    <p>
-        {% if session["user_id"] %}
-            Welcome back, {{ session["user_id"] }}!
-        {% else %}
-            Welcome! <a href="/login">Log in</a> or <a href="/register">register</a> to get started.
-        {% endif %}
-    </p>
+    <div class="container">
+        <table class="table table-hover">
+        <thead>
+            <tr>
+            <th class="fw-bold" scope="col">Symbol</th>
+            <th class="fw-bold" scope="col">Shares</th>
+            <th class="fw-bold" scope="col">Price</th>
+            <th class="fw-bold" scope="col">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for portfolio in portfolios %}
+            <tr>
+                <td>{{ portfolio.symbol }}</th>
+                <td>{{ portfolio.total_share }}</td>
+                <td>{{ portfolio.avg_price }}</td>
+                <td>{{ portfolio.total_price }}</td>
+            </tr>
+            {% endfor %}
+
+            <tr>
+                <td colspan="2"></td>
+                <td class="fw-bold">Cash</td>
+                <td>{{ total_cash }}</td>
+            </tr>
+            <tr>
+                <td colspan="2"></td>
+                <td class="fw-bold">TOTAL</td>
+                <td>{{ total_asset }}</td>
+            </tr>
+        </tbody>
+        </table>
+    </div>
 {% endblock %}

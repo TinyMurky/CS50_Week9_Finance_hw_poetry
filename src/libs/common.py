@@ -121,3 +121,10 @@ def get_local_time(timestamp: float):
     dt_zone = timezone.localize(d_time)
 
     return dt_zone
+
+
+def number_to_money(number: int | float):
+    """
+    Change number to money
+    """
+    return f"${number:,}"
