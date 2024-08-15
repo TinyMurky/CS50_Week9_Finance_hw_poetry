@@ -88,9 +88,14 @@ def register():
 
 @users.route("/cash", methods=["GET"])
 def get_user_cash():
-    user_id = session["user_id"]
-
+    """
+    Get user cash
+    """
     result = {"cash": 0}
+    try:
+        user_id = session["user_id"]
+    except KeyError:
+        return jsonify(result)
 
     if not user_id:
         return jsonify(result)

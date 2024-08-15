@@ -39,6 +39,7 @@ def home_page():
 
     total_cash = number_to_money(total_cash)
     total_asset = number_to_money(total_asset)
+    print(portfolios)
     return render_template(
         "home.html",
         total_cash=total_cash,

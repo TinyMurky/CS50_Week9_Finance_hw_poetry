@@ -71,6 +71,11 @@ NotEnoughShare = create_custom_http_exception(
     exceptions.BadRequest,
 )
 
+SymbolNotFound = create_custom_http_exception(
+    "SymbolNotFound", 404, "Symbol not found", exceptions.NotFound
+)
+
+
 error_exception_mapper = {
     "DatabaseReadFailException": DatabaseReadFailException,
     "DatabaseCreateFailException": DatabaseCreateFailException,
