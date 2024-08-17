@@ -74,7 +74,7 @@ class SQL:
 
     def find_unique_user(self, identifier: Union[str, int]) -> dict[str, Any]:
         """
-        get unique user from users table
+        get unique users from users table
         """
         assert self._cursor is not None
         if isinstance(identifier, str):
@@ -158,16 +158,19 @@ class SQL:
 
         return self._cursor.lastrowid
 
-    def get_user_single_stock_shares(self, user_id: int, symbol) -> int:
+    def get_user_single_stock_shares(self, user_id: int, symbol: str) -> int:
         """
         GET how many stock an user have
         """
         assert self._connect is not None, "Connect is None"
         assert self._cursor is not None, "Cursor is None"
 
+        symbol = symbol.upper()
+
         query = """
         SELECT SUM(share) as total_shares
-        WHERE user_id = ?, symbol = ?;
+        FROM transactions
+        WHERE user_id = ? AND symbol = ?;
         """
 
         self._cursor.execute(query, (user_id, symbol))
@@ -189,21 +192,24 @@ class SQL:
         assert self._connect is not None, "Connect is None"
         assert self._cursor is not None, "Cursor is None"
 
+        print("user_id", user_id)
         user = self.find_unique_user(user_id)
-        share = -1 * abs(share)
+        symbol = symbol.upper()
+        share = abs(share)
+        price = abs(price)
 
         if not user:
             raise NoSuchUser
 
-        total_price = price * share
+        total_price = abs(price * share)
 
         if user["cash"] < total_price:
             raise NotEnoughMoney
 
         update_cash_query = """
-        UPDATE user
+        UPDATE users
         SET cash = cash - (? * ?)
-        WHERE user_id = ?;
+        WHERE id = ?;
         """
 
         insert_buy_transaction_query = """
@@ -221,6 +227,7 @@ class SQL:
                 insert_buy_transaction_query, (symbol, share, price, now, user_id)
             )
             self._connect.commit()
+            print("Execute!")
         except sqlite3.Error as e:
             # 如果发生错误，回滚事务
             print(f"An error occurred in buy: {e}")
@@ -236,14 +243,17 @@ class SQL:
         assert self._cursor is not None, "Cursor is None"
 
         user_stock = self.get_user_single_stock_shares(user_id=user_id, symbol=symbol)
+        share = -1 * abs(share)
+        price = abs(price)
+        symbol = symbol.upper()
 
         if user_stock < share:
             raise NotEnoughShare
 
         update_cash_query = """
-        UPDATE user
-        SET cash = cash + (? * ?)
-        WHERE user_id = ?;
+        UPDATE users
+        SET cash = cash - (? * ?)
+        WHERE id = ?;
         """
 
         insert_buy_transaction_query = """
@@ -264,6 +274,7 @@ class SQL:
             # 如果发生错误，回滚事务
             print(f"An error occurred in buy: {e}")
             self._connect.rollback()
+        return self._cursor.lastrowid
 
     def get_portfolio(self, user_id: int):
         """
@@ -282,12 +293,16 @@ class SQL:
         SELECT
             symbol,
             sum(price * share) as total_price,
-            ROUND(sum(price * share) / sum(share), 2) as avg_price,
+            CASE
+                WHEN sum(share) != 0 THEN ABS(ROUND(sum(price * share) / sum(share), 2))
+                ELSE 0
+            END as avg_price,
             sum(share) as total_share
         FROM transactions
         WHERE user_id = ?
         GROUP BY symbol
-        ORDER BY total_share DESC
+        HAVING sum(share) != 0
+        ORDER BY total_share DESC;
         """
 
         self._cursor.execute(query, (user_id,))
@@ -296,7 +311,7 @@ class SQL:
 
         return portfolio
 
-    def get_history(self, user_id: int, page: int, limit: int):
+    def find_many_history(self, user_id: int, page: int, limit: int):
         """
         get history of transaction
         """
@@ -305,7 +320,12 @@ class SQL:
         offset = get_offset(page=page, limit=limit)
 
         query = """
-        SELECT id, symbol, share, price, timestamp
+        SELECT id, symbol, ABS(share) as abs_share, price, timestamp,
+            CASE
+                WHEN share > 0 THEN 'Buy'
+                ELSE 'Sell'
+            END as action
+        FROM transactions
         WHERE user_id = ?
         ORDER BY timestamp DESC
         LIMIT ? OFFSET ?;

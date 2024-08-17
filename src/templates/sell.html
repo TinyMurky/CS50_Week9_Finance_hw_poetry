@@ -1,15 +1,15 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Buy
+    Sell
 {% endblock %}
 
 {% block main %}
     
     <div class="container h-75 d-flex flex-column align-items-center justify-content-between">
-    <h1>Buy Stock!</h1>
+    <h1>Sell Stock!</h1>
     <div class="my-5 container d-flex justify-content-center">
-        <form class="d-flex  justify-content-center g-4" action="/stock/buy" method="post">
+        <form class="d-flex  justify-content-center g-4" action="/stock/sell" method="post">
             <div class="">
                 <label for="symbol" class="form-label">Stock Symbol</label>
                 <input type="text" class="form-control" id="symbol" name="symbol" aria-describedby="symbol" placeholder="ex:VOO">

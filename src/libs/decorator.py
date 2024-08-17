@@ -15,7 +15,6 @@ def login_required(f):
         USER_LOGIN_URL = "/users/login"
 
         user_id = session.get("user_id")
-        print("user_id", user_id, type(user_id))
         if not user_id or not isinstance(user_id, int):
             return redirect(USER_LOGIN_URL)
 
@@ -26,9 +25,6 @@ def login_required(f):
         #     raise InvalidUserInputException from exc
 
         user = sql_client.find_unique_user(user_id)
-
-        print("user", user)
-        print("user_id", user_id, type(user_id))
 
         if not user:
             return redirect(USER_LOGIN_URL)

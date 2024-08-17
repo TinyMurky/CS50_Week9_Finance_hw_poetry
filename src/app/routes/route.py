@@ -25,11 +25,12 @@ def home_page():
     portfolios = sql_client.get_portfolio(user_id=user_id)
 
     total_amount_of_portfolio = sum(
-        int(portfolio["total_price"]) for portfolio in portfolios
+        portfolio["total_price"] for portfolio in portfolios
     )
 
     total_asset = total_cash + total_amount_of_portfolio
 
+    print("portfolios", portfolios)
     for portfolio in portfolios:
         total_price = portfolio["total_price"]
         portfolio["total_price"] = number_to_money(total_price)
@@ -39,7 +40,7 @@ def home_page():
 
     total_cash = number_to_money(total_cash)
     total_asset = number_to_money(total_asset)
-    print(portfolios)
+
     return render_template(
         "home.html",
         total_cash=total_cash,

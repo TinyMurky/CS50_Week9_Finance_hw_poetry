@@ -3,12 +3,14 @@ For getting quote from yahoo
 """
 
 from flask import request, session, render_template, redirect
+from libs.decorator import login_required
 from src.app.routes.quote import quote
 from src.libs.common import lookup, get_total_page, get_local_time, format_datetime
 from src.sql.sqlite import sql_client
 
 
 @quote.route("/", methods=["GET", "POST"])
+@login_required
 def index():
     """
     POST to get quote from yahho
@@ -24,7 +26,6 @@ def index():
         current_quote: dict[str, float | str] | None = None
         if symbol and user_id:
             current_quote = lookup(symbol=symbol)
-            print("Quote", current_quote)
             if current_quote is not None:
                 symbol = str(current_quote["symbol"])
                 price = float(current_quote["price"])

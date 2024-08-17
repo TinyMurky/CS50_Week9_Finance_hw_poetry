@@ -127,4 +127,5 @@ def number_to_money(number: int | float):
     """
     Change number to money
     """
-    return f"${number:,}"
+
+    return f"${round(number, 2):,}"
