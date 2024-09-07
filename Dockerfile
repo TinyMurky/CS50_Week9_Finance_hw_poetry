@@ -1,9 +1,11 @@
 # Reference : https://medium.com/@albertazzir/blazing-fast-python-docker-builds-with-poetry-a78a66f5aed0
+# EC2 with docker: https://ticyyang.medium.com/aws-%E5%BB%BA%E7%AB%8B-ec2-%E5%9F%B7%E8%A1%8C%E5%80%8B%E9%AB%94-%E5%AE%89%E8%A3%9D-docker-5ae54ddf4b09#4d37
+# install docker on EC2 https://docs.aws.amazon.com/zh_tw/AmazonECS/latest/developerguide/create-container-image.html#create-container-image-install-docker
 # Build it by "docker build -t tinymurky/cs50_financial ."
 # Push it by "docker push tinymurky/cs50_financial"
 # run it by
 
-# docker run -d -p 3000:80 \
+# docker run -d -p 80:3000 \
 #   -v $(pwd)/flask_session:/app/data/flask_session \
 #   -v $(pwd)/database:/app/data/database \
 #   -e PORT=3000 \

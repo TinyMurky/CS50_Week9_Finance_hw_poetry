@@ -5,7 +5,7 @@ for poetry to start service
 from waitress import serve
 from src.app import app
 from src.constants.env import PORT
-
+from src.sql.sqlite import SQL
 
 def start_dev():
     """
@@ -24,4 +24,5 @@ def start_prod():
     serve(app, port=PORT, host="0.0.0.0")
 
 if __name__ == "__main__":
+    SQL.migrate()
     start_prod()
