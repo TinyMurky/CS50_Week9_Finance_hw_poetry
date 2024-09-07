@@ -16,11 +16,11 @@ dev = "app.main:start_dev"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-flask = "^3.0.3"
-flask-session = "^0.8.0"
-waitress = "^3.0.0"
+flask = "^3.0"
+flask-session = "^0.8"
+waitress = "^3.0"
 pytz = "^2024.1"
-requests = "^2.32.3"
+requests = "^2.32"
 
 
 [build-system]
