@@ -1,8 +1,9 @@
 # Reference : https://medium.com/@albertazzir/blazing-fast-python-docker-builds-with-poetry-a78a66f5aed0
 # Build it by "docker build -t tinymurky/cs50_financial ."
+# Push it by "docker push tinymurky/cs50_financial"
 # run it by
 
-# docker run -d -p 3000:3000 \
+# docker run -d -p 3000:80 \
 #   -v $(pwd)/flask_session:/app/data/flask_session \
 #   -v $(pwd)/database:/app/data/database \
 #   -e PORT=3000 \
