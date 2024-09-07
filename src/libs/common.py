@@ -19,6 +19,12 @@ def get_abs_path(path: str):
 
     return os.path.join(abs_path, path)
 
+def create_path_if_not_exist(path: str):
+    """
+    create path if not exist
+    """
+    if not os.path.exists(path):
+        os.makedirs(path)
 
 def usd(value: float):
     """

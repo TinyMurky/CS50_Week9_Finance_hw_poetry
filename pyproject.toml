@@ -21,7 +21,9 @@ flask-session = "^0.8"
 waitress = "^3.0"
 pytz = "^2024.1"
 requests = "^2.32"
+python-dotenv = "^1.0"
 
+[tool.poetry.dev-dependencies]
 
 [build-system]
 requires = ["poetry-core"]
