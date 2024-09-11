@@ -19,6 +19,12 @@ def get_abs_path(path: str):
 
     return os.path.join(abs_path, path)
 
+def create_path_if_not_exist(path: str):
+    """
+    create path if not exist
+    """
+    if not os.path.exists(path):
+        os.makedirs(path)
 
 def usd(value: float):
     """
@@ -52,9 +58,17 @@ def lookup(symbol: str):
     end = datetime.datetime.now(pytz.timezone("US/Eastern"))
     start = end - datetime.timedelta(days=7)
 
-    # Yahoo Finance API
+    # old Yahoo Finance API
+    # url = (
+    #     f"https://query1.finance.yahoo.com/v7/finance/download/{urllib.parse.quote_plus(symbol)}"
+    #     f"?period1={int(start.timestamp())}"
+    #     f"&period2={int(end.timestamp())}"
+    #     f"&interval=1d&events=history&includeAdjustedClose=true"
+    # )
+
+    # new Yahoo Finance API
     url = (
-        f"https://query1.finance.yahoo.com/v7/finance/download/{urllib.parse.quote_plus(symbol)}"
+        f"https://query2.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote_plus(symbol)}"
         f"?period1={int(start.timestamp())}"
         f"&period2={int(end.timestamp())}"
         f"&interval=1d&events=history&includeAdjustedClose=true"
@@ -62,6 +76,20 @@ def lookup(symbol: str):
 
     # Query API
     try:
+        # old version
+        # response = requests.get(
+        #     url,
+        #     cookies={"session": str(uuid.uuid4())},
+        #     headers={"Accept": "*/*", "User-Agent": request.headers.get("User-Agent")},
+        #     timeout=5,
+        # )
+        # response.raise_for_status()
+
+        # # CSV header: Date,Open,High,Low,Close,Adj Close,Volume
+        # quotes = list(csv.DictReader(response.content.decode("utf-8").splitlines()))
+        # price = round(float(quotes[-1]["Adj Close"]), 2)
+
+        # new version is json
         response = requests.get(
             url,
             cookies={"session": str(uuid.uuid4())},
@@ -70,11 +98,12 @@ def lookup(symbol: str):
         )
         response.raise_for_status()
 
-        # CSV header: Date,Open,High,Low,Close,Adj Close,Volume
-        quotes = list(csv.DictReader(response.content.decode("utf-8").splitlines()))
-        price = round(float(quotes[-1]["Adj Close"]), 2)
+        # #json
+        quotes = response.json()
+        price = round(float(quotes["chart"]["result"][0]["meta"]["regularMarketPrice"]), 2)
         return {"price": price, "symbol": symbol}
     except (KeyError, IndexError, requests.RequestException, ValueError):
+        print(f"Error fetching {url}")
         return None
 
 

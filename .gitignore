@@ -1,5 +1,9 @@
 .venv
-poetry.lock
 __pycache__
+flask_session
+.env
+src/data
+tmp
+database
 **/__pycache__/
 **/flask_session/*

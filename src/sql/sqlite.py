@@ -8,6 +8,7 @@ from src.libs.errors.error_classes import (
     NotEnoughMoney,
     NotEnoughShare,
 )
+from src.constants.env import SQLITE_PATH
 
 
 class SQL:
@@ -15,7 +16,7 @@ class SQL:
     Singleton to access database by sqlite
     """
 
-    _db_path = get_abs_path("sql/finance.db")
+    _db_path = get_abs_path(f"{SQLITE_PATH}/finance.db")
     _instance = None
     _connect = None
     _cursor = None
